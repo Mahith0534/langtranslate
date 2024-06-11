@@ -1,19 +1,25 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
-import pytesseract
 from PIL import Image
 import speech_recognition as sr
 import pyttsx3
 from docx import Document
-import PyPDF2
+from PyPDF2 import PdfReader
 from googletrans import Translator
+import pytesseract
+from pydub import AudioSegment
 import io
-import os
+
+# Set the tesseract command to the full path
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'  # Adjust path for your system
 
 app = Flask(__name__)
 CORS(app)
 
-# OCR from image
+@app.route('/')
+def home():
+    return render_template('index.html')
+
 @app.route('/ocr', methods=['POST'])
 def ocr_from_image():
     if 'image' not in request.files:
@@ -24,7 +30,6 @@ def ocr_from_image():
     text = pytesseract.image_to_string(img)
     return jsonify({"text": text})
 
-# Speech to text
 @app.route('/speech-to-text', methods=['POST'])
 def speech_to_text():
     if 'audio' not in request.files:
@@ -32,20 +37,24 @@ def speech_to_text():
     
     file = request.files['audio']
     recognizer = sr.Recognizer()
-    audio = sr.AudioFile(file.stream)
-
-    with audio as source:
-        audio_data = recognizer.record(source)
 
     try:
+        # Attempt to open the audio file using pydub
+        audio = AudioSegment.from_file(file.stream)
+        # Convert the audio to a format that SpeechRecognition can handle
+        wav_io = io.BytesIO()
+        audio.export(wav_io, format="wav")
+        wav_io.seek(0)
+        audio_data = sr.AudioFile(wav_io)
+
+        with audio_data as source:
+            audio_data = recognizer.record(source)
+
         text = recognizer.recognize_google(audio_data)
         return jsonify({"text": text})
-    except sr.UnknownValueError:
-        return jsonify({"error": "Could not understand the audio"}), 400
-    except sr.RequestError:
-        return jsonify({"error": "Google API error"}), 500
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
-# Text to speech
 @app.route('/text-to-speech', methods=['POST'])
 def text_to_speech():
     data = request.get_json()
@@ -60,7 +69,6 @@ def text_to_speech():
 
     return jsonify({"message": "Speech saved as output.mp3"})
 
-# DOCX to text
 @app.route('/docx-to-text', methods=['POST'])
 def docx_to_text():
     if 'document' not in request.files:
@@ -71,18 +79,16 @@ def docx_to_text():
     full_text = [para.text for para in doc.paragraphs]
     return jsonify({"text": '\n'.join(full_text)})
 
-# PDF to text
 @app.route('/pdf-to-text', methods=['POST'])
 def pdf_to_text():
     if 'document' not in request.files:
         return jsonify({"error": "No document provided"}), 400
     
     file = request.files['document']
-    reader = PyPDF2.PdfFileReader(file.stream)
-    full_text = [reader.getPage(page_num).extract_text() for page_num in range(reader.numPages)]
+    reader = PdfReader(file.stream)
+    full_text = [page.extract_text() for page in reader.pages]
     return jsonify({"text": '\n'.join(full_text)})
 
-# Translation
 @app.route('/translate', methods=['POST'])
 def translate_text():
     data = request.get_json()
