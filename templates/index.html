@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Processing Application</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Text Processing Application</h1>
+
+        <div class="card mb-4">
+            <div class="card-header">OCR from Image</div>
+            <div class="card-body">
+                <input type="file" id="image-input" class="form-control mb-2">
+                <button class="btn btn-primary btn-block" onclick="processImage()">Upload and Process</button>
+                <p id="image-output" class="mt-2"></p>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">Speech to Text</div>
+            <div class="card-body">
+                <input type="file" id="audio-input" class="form-control mb-2">
+                <button class="btn btn-primary btn-block" onclick="processAudio()">Upload and Process</button>
+                <p id="audio-output" class="mt-2"></p>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">Text to Speech</div>
+            <div class="card-body">
+                <textarea id="tts-input" class="form-control mb-2" rows="3"></textarea>
+                <button class="btn btn-primary btn-block" onclick="processTTS()">Convert to Speech</button>
+                <audio id="tts-output" controls class="mt-2 w-100"></audio>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">DOCX to Text</div>
+            <div class="card-body">
+                <input type="file" id="docx-input" class="form-control mb-2">
+                <button class="btn btn-primary btn-block" onclick="processDocx()">Upload and Process</button>
+                <p id="docx-output" class="mt-2"></p>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">PDF to Text</div>
+            <div class="card-body">
+                <input type="file" id="pdf-input" class="form-control mb-2">
+                <button class="btn btn-primary btn-block" onclick="processPdf()">Upload and Process</button>
+                <p id="pdf-output" class="mt-2"></p>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">Translate Text</div>
+            <div class="card-body">
+                <textarea id="translate-input" class="form-control mb-2" rows="3"></textarea>
+                <div class="form-row">
+                    <div class="col">
+                        <select id="src-lang" class="form-control">
+                            <option value="en">English</option>
+                            <option value="es">Spanish</option>
+                            <!-- Add more languages as needed -->
+                        </select>
+                    </div>
+                    <div class="col">
+                        <select id="dest-lang" class="form-control">
+                            <option value="es">Spanish</option>
+                            <option value="en">English</option>
+			    <option value="hi">Hindi</option>
+			    <option value="mr">Marathi</option>
+			    <option value="bn">Bengali</option>
+    		            <option value="gu">Gujarati</option>
+    			    <option value="ta">Tamil</option>
+    			    <option value="te">Telugu</option>
+
+                            <!-- Add more languages as needed -->
+                        </select>
+                    </div>
+                </div>
+                <button class="btn btn-primary btn-block mt-2" onclick="translateText()">Translate</button>
+                <p id="translate-output" class="mt-2"></p>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+</body>
+</html>
